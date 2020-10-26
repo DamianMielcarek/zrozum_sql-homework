@@ -1,17 +1,25 @@
 -- 2M3L24_zadania_projekt.sql
 -- Moduł 3 Data Definition Language – PROJEKT
+-- ze zmianami z Moduł 4 Data Control Language – PROJEKT
 
--- 1. Stwórz nowy schemat o nazwie expense_tracker.
-CREATE SCHEMA expense_tracker;
+-- ZMIANY DO SKRYPTU MODUŁ 3
+-- 8. Otwórz skrypt z zdaniami projektowymi z Moduły 3. Usuń fragment skryptu związany z tworzeniem schematu expense_tracker, teraz ten fragment będzie w tej części skryptu.
+-- Z pliku 2M3L24_zadania_projekt.sql usunięto linię:
+-- CREATE SCHEMA expense_tracker;
 
+-- 9. Dla definicja tabel w skrypcie z zdaniami do Modułu 3 dodaj relację kluczy obcych pomiędzy tabelami. Zmień definicję CREATE TABLE, nie dodawaj tego za pośrednictwem ALTER TABLE (będzie przejrzyściej).
+--  BANK_ACCOUNT_TYPES: Atrybut ID_BA_OWN ma być referencją do BANK_ACCOUNT_OWNER (ID_BA_OWN)
+--  TRANSACTIONS: Atrybut ID_TRANS_BA ma być referencją do TRANSACTION_BANK_ACCOUNTS (ID_TRANS_BA)
+--  TRANSACTIONS: Atrybut ID_TRANS_CAT ma być referencją do TRANSACTION_CATEGORY (ID_TRANS_CAT)
+--  TRANSACTIONS: Atrybut ID_TRANS_SUBCAT ma być referencją do TRANSACTION_SUBCATEGORY (ID_TRANS_SUBCAT)
+--  TRANSACTIONS: Atrybut ID_TRANS_TYPE ma być referencją do TRANSACTION_TYPE (ID_TRANS_TYPE)
+--  TRANSACTIONS: Atrybut ID_USER ma być referencją do USERS (ID_USER)
+--  TRANSACTION_BANK_ACCOUNTS: Atrybut ID_BA_OWN ma być referencją do BANK_ACCOUNT_OWNER (ID_BA_OWN)
+--  TRANSACTION_BANK_ACCOUNTS: Atrybut ID_BA_TYP ma być referencją do BANK_ACCOUNT_TYPES (ID_BA_TYPE)
 
--- 2. W schemacie expense_tracker na podstawie dołączonego diagramu ERD. Stwórz wszystkie
--- tabele projektowe, według dołączonego opisu. Na tym etapie nie tworzymy kluczy obcych
--- FOREIGN KEY.
+--  TRANSACTION_SUBCATEGORY: Atrybut ID_TRANS_CAT ma być referencją do TRANSACTION_CATEGORY (ID_TRANS_CAT)
+-- 10. Uszereguj tak wykonanie tabel w skrypcie, aby w momencie uruchomienia skryptu, nie był zwracany błąd, że dana relacja nie może zostać utworzona, bo tabela jeszcze nie istnieje.
 
--- Pamiętaj o wykorzystaniu IF EXISTS / IF NOT EXISTS. Wszystkie operacje powinny się
--- znaleźć w 1 skrypcie. Kilkukrotne uruchomienie tego samego skrypty powinno dawać ten
--- sam rezultat (utworzenie tabel). Hint: DROP IF EXISTS + CREATE IF NOT EXISTS
 
 -- Tabela: bank_account_owner
 -- Kolumny:
@@ -53,6 +61,9 @@ CREATE TABLE IF NOT EXISTS expense_tracker.bank_account_owner (
 --  insert_date, typ data i czas, wartość domyślna current_timestamp (spowoduje
 -- wstawianie aktualnej daty i czasu w momencie wstawiania wierszy)
 --  update_date, typ data i czas, wartość domyślna current_timestamp
+
+-- zmiana z Moduł 4 Data Control Language – PROJEKT
+--  BANK_ACCOUNT_TYPES: Atrybut ID_BA_OWN ma być referencją do BANK_ACCOUNT_OWNER (ID_BA_OWN)
 DROP TABLE IF EXISTS expense_tracker.bank_account_types;
 CREATE TABLE IF NOT EXISTS expense_tracker.bank_account_types (
 	id_ba_type			integer			PRIMARY KEY
@@ -63,41 +74,7 @@ CREATE TABLE IF NOT EXISTS expense_tracker.bank_account_types (
 ,	id_ba_own			integer
 ,	insert_date			timestamp		DEFAULT current_timestamp
 ,	update_date			timestamp		DEFAULT current_timestamp
-);
-
-
--- Tabela: transactions
--- Kolumny:
---  id_transaction, typ całkowity, klucz główny
---  id_trans_ba, typ całkowity
---  id_trans_cat, typ całkowity
---  id_trans_subcat, typ całkowity
---  id_trans_type, typ całkowity
---  id_user, typ całkowity
---  transaction_date, typ daty (sama data), wartość domyślna current_date (spowoduje
--- wstawianie aktualnej daty w momencie wstawiania wierszy)
--- UWAGA: nie ma tego w materiałach wideo. Przeczytaj o atrybucie DEFAULT dla
--- kolumny https://www.postgresql.org/docs/12/ddl-default.html
--- Przykład: transaction_date DATE DEFAULT current_date
---  transaction_value, typ zmiennoprzecinkowy (numeric, 9 znaków, do 2 znaków po
--- przecinku)
---  transaction_description, typ tekstowy (nieograniczony)
---  insert_date, typ data i czas, wartość domyślna current_timestamp (spowoduje
--- wstawianie aktualnej daty i czasu w momencie wstawiania wierszy)
---  update_date, typ data i czas, wartość domyślna current_timestamp
-DROP TABLE IF EXISTS expense_tracker.transactions;
-CREATE TABLE IF NOT EXISTS expense_tracker.transactions (
-	id_transaction			integer			PRIMARY KEY
-,	id_trans_ba				integer
-,	id_trans_cat			integer
-,	id_trans_subcat			integer
-,	id_trans_type			integer
-,	id_user					integer
-,	transaction_date		date			DEFAULT current_date
-,	transaction_value		numeric(9,2)
-,	transaction_description	TEXT
-,	insert_date				timestamp		DEFAULT current_timestamp
-,	update_date				timestamp		DEFAULT current_timestamp
+,   CONSTRAINT bank_account_owner_fk FOREIGN KEY (id_ba_own) REFERENCES expense_tracker.bank_account_owner (id_ba_own)
 );
 
 
@@ -115,6 +92,10 @@ CREATE TABLE IF NOT EXISTS expense_tracker.transactions (
 --  insert_date, typ data i czas, wartość domyślna current_timestamp (spowoduje
 -- wstawianie aktualnej daty i czasu w momencie wstawiania wierszy)
 --  update_date, typ data i czas, wartość domyślna current_timestamp
+
+-- zmiany z Moduł 4 Data Control Language – PROJEKT
+--  TRANSACTION_BANK_ACCOUNTS: Atrybut ID_BA_OWN ma być referencją do BANK_ACCOUNT_OWNER (ID_BA_OWN)
+--  TRANSACTION_BANK_ACCOUNTS: Atrybut ID_BA_TYP ma być referencją do BANK_ACCOUNT_TYPES (ID_BA_TYPE)
 DROP TABLE IF EXISTS expense_tracker.transaction_bank_accounts;
 CREATE TABLE IF NOT EXISTS expense_tracker.transaction_bank_accounts (
 	id_trans_ba			integer			PRIMARY KEY
@@ -125,6 +106,8 @@ CREATE TABLE IF NOT EXISTS expense_tracker.transaction_bank_accounts (
 ,	active				varchar(1)		NOT NULL	DEFAULT 1
 ,	insert_date			timestamp		DEFAULT current_timestamp
 ,	update_date			timestamp		DEFAULT current_timestamp
+,   CONSTRAINT bank_account_owner_fk FOREIGN KEY (id_ba_own) REFERENCES expense_tracker.bank_account_owner (id_ba_own)
+,   CONSTRAINT bank_account_types_fk FOREIGN KEY (id_ba_typ) REFERENCES expense_tracker.bank_account_types (id_ba_type)
 );
 
 
@@ -164,6 +147,9 @@ CREATE TABLE IF NOT EXISTS expense_tracker.transaction_category (
 --  insert_date, typ data i czas, wartość domyślna current_timestamp (spowoduje
 -- wstawianie aktualnej daty i czasu w momencie wstawiania wierszy)
 --  update_date, typ data i czas, wartość domyślna current_timestamp
+
+-- zmiana z Moduł 4 Data Control Language – PROJEKT
+--  TRANSACTION_SUBCATEGORY: Atrybut ID_TRANS_CAT ma być referencją do TRANSACTION_CATEGORY (ID_TRANS_CAT)
 DROP TABLE IF EXISTS expense_tracker.transaction_subcategory;
 CREATE TABLE IF NOT EXISTS expense_tracker.transaction_subcategory (
 	id_trans_subcat			integer			PRIMARY KEY
@@ -173,6 +159,7 @@ CREATE TABLE IF NOT EXISTS expense_tracker.transaction_subcategory (
 ,	active					varchar(1)		NOT NULL	DEFAULT 1
 ,	insert_date				timestamp		DEFAULT current_timestamp
 ,	update_date				timestamp		DEFAULT current_timestamp
+,   CONSTRAINT transaction_category_fk FOREIGN KEY (id_trans_cat) REFERENCES expense_tracker.transaction_category (id_trans_cat)
 );
 
 
@@ -223,4 +210,51 @@ CREATE TABLE IF NOT EXISTS expense_tracker.users (
 ,	active			varchar(1)		NOT NULL	DEFAULT 1
 ,	insert_date		timestamp		DEFAULT current_timestamp
 ,	update_date		timestamp		DEFAULT current_timestamp
+);
+
+
+-- Tabela: transactions
+-- Kolumny:
+--  id_transaction, typ całkowity, klucz główny
+--  id_trans_ba, typ całkowity
+--  id_trans_cat, typ całkowity
+--  id_trans_subcat, typ całkowity
+--  id_trans_type, typ całkowity
+--  id_user, typ całkowity
+--  transaction_date, typ daty (sama data), wartość domyślna current_date (spowoduje
+-- wstawianie aktualnej daty w momencie wstawiania wierszy)
+-- UWAGA: nie ma tego w materiałach wideo. Przeczytaj o atrybucie DEFAULT dla
+-- kolumny https://www.postgresql.org/docs/12/ddl-default.html
+-- Przykład: transaction_date DATE DEFAULT current_date
+--  transaction_value, typ zmiennoprzecinkowy (numeric, 9 znaków, do 2 znaków po
+-- przecinku)
+--  transaction_description, typ tekstowy (nieograniczony)
+--  insert_date, typ data i czas, wartość domyślna current_timestamp (spowoduje
+-- wstawianie aktualnej daty i czasu w momencie wstawiania wierszy)
+--  update_date, typ data i czas, wartość domyślna current_timestamp
+
+-- zmiany z Moduł 4 Data Control Language – PROJEKT
+--  TRANSACTIONS: Atrybut ID_TRANS_BA ma być referencją do TRANSACTION_BANK_ACCOUNTS (ID_TRANS_BA)
+--  TRANSACTIONS: Atrybut ID_TRANS_CAT ma być referencją do TRANSACTION_CATEGORY (ID_TRANS_CAT)
+--  TRANSACTIONS: Atrybut ID_TRANS_SUBCAT ma być referencją do TRANSACTION_SUBCATEGORY (ID_TRANS_SUBCAT)
+--  TRANSACTIONS: Atrybut ID_TRANS_TYPE ma być referencją do TRANSACTION_TYPE (ID_TRANS_TYPE)
+--  TRANSACTIONS: Atrybut ID_USER ma być referencją do USERS (ID_USER)
+DROP TABLE IF EXISTS expense_tracker.transactions;
+CREATE TABLE IF NOT EXISTS expense_tracker.transactions (
+	id_transaction			integer			PRIMARY KEY
+,	id_trans_ba				integer
+,	id_trans_cat			integer
+,	id_trans_subcat			integer
+,	id_trans_type			integer
+,	id_user					integer
+,	transaction_date		date			DEFAULT current_date
+,	transaction_value		numeric(9,2)
+,	transaction_description	TEXT
+,	insert_date				timestamp		DEFAULT current_timestamp
+,	update_date				timestamp		DEFAULT current_timestamp
+,   CONSTRAINT transaction_bank_accounts_fk FOREIGN KEY (id_trans_ba) REFERENCES expense_tracker.transaction_bank_accounts (id_trans_ba)
+,   CONSTRAINT transaction_category_fk FOREIGN KEY (id_trans_cat) REFERENCES expense_tracker.transaction_category(id_trans_cat)
+,   CONSTRAINT transaction_subcategory_fk FOREIGN KEY (id_trans_subcat) REFERENCES expense_tracker.transaction_subcategory(id_trans_subcat)
+,   CONSTRAINT transaction_type_fk FOREIGN KEY (id_trans_type) REFERENCES expense_tracker.transaction_type(id_trans_type)
+,   CONSTRAINT users_fk FOREIGN KEY (id_user) REFERENCES expense_tracker.users(id_user)
 );
